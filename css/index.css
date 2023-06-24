@@ -1,0 +1,16 @@
+* { box-sizing: border-box; color: inherit; font-size: inherit; font-family: inherit; -webkit-tap-highlight-color: transparent }
+
+
+body { display: flex; margin: 0; width: 100vw; height: 100vh; background: var(--bg-body); color: var(--color); font-family: rubik, sans-serif; flex-direction: column }
+
+
+header { display: flex; padding: .5em 1em; height: 3em; background: var(--bg-header); justify-content: space-between; align-items: center; gap: 1em }
+
+header h1 a { display: flex; border-bottom: 1px solid transparent; font-weight: normal; text-transform: uppercase; align-items: center; gap: .3em; transition: .1s; filter: brightness(.8); text-decoration: none }
+header h1 a:hover { border-bottom: 1px solid #F5B862; filter: brightness(1) }
+header h1  svg { width: 1em; height: 1em; }
+header .link-metw { padding: .2em; height: 100%; aspect-ratio: 1 }
+
+
+main { display: flex; padding: 1em; height: calc(100vh - 3em); justify-content: center; align-items: center }
+main canvas { width: min(1000px, 100%); height: min(1000px, 100%); background: var(--bg-canvas) }
