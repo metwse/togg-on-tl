@@ -230,11 +230,10 @@ function update(t) {
     wheels[1].y -= a
     pos[1] += a
 
-    a = Math.atan2(wheels[0].y - wheels[1].y, wheels[0].x - wheels[1].x)
     let l = distance(wheels[0], wheels[1]) - 160
     for (let i = 0; i <= 1; i ++) {
-        wheels[i].x += Math.cos(a) * l / 4 * (i ? 1 : -1)
-        wheels[i].y += Math.sin(a) * l / 4 * (i ? 1 : -1)
+        wheels[i].x += Math.cos(car.rotation) * l / 4 * (i ? -1 : 1)
+        wheels[i].y += Math.sin(car.rotation) * l / 4 * (i ? -1 : 1)
     }
 
     wheels.forEach(v => v.update(dt))
@@ -254,10 +253,8 @@ class Wheel {
     
     update(dt) {
         let Fnet = [0, this.m * 20], F = this.F.concat(this.F.temp)
-        for (let i = 0; i < F.length; i ++) {
-            Fnet[0] += F[i][0]
-            Fnet[1] += F[i][1]
-        }
+        for (let i = 0; i < F.length; i ++) { Fnet[0] += F[i][0], Fnet[1] += F[i][1] }
+
         this.a = [Fnet[0] / this.m, Fnet[1] / this.m]
         let dx = this.a[0] * dt ** 2 / 2 + this.v[0] * dt, dy = this.a[1] * dt ** 2 / 2 + this.v[1] * dt
         this.x += dx, this.y += dy
