@@ -1,4 +1,4 @@
-* { box-sizing: border-box; color: inherit; font-size: inherit; font-family: inherit; -webkit-tap-highlight-color: transparent }
+* { box-sizing: border-box; color: inherit; font-size: inherit; font-family: inherit; -webkit-tap-highlight-color: transparent; user-select: none }
 
 
 body { display: flex; margin: 0; width: 100vw; height: 100vh; background: var(--bg-body); color: var(--color); font-family: rubik, sans-serif; flex-direction: column }

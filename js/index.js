@@ -65,16 +65,22 @@ onload = async () => {
 }
 
 onkeydown = e => {
-    switch (e.key) {
-        case 'w': car.gas = true; break
-        case 's': car.break = true; break
+    switch (e.key.toLowerCase()) {
+        case 'w':
+        case 'd': 
+        case 'arrowup':
+        case 'arrowright': 
+            car.gas = true; break
+        case 's':
+        case 'a': 
+        case 'arrowdown':
+        case 'arrowleft': 
+            car.break = true; break
     }
 }
 onkeyup = e => {
-    switch (e.key) {
-        case 'w': car.gas = false; break
-        case 's': car.break = false; break
-    }
+    car.break = car.gas = false
+    
 }
 
 
