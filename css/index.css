@@ -11,6 +11,12 @@ header h1 a:hover { border-bottom: 1px solid #F5B862; filter: brightness(1) }
 header h1  svg { width: 1em; height: 1em; }
 header .link-metw { padding: .2em; height: 100%; aspect-ratio: 1 }
 
+header .toolbar { display: flex; background: inherit; gap: .75em } 
+header .toolbar select { display: flex; padding: .5em 1em .5em .5em; width: 100%; background: inherit; border: none; border-radius: .5em; align-items: center; filter: brightness(1.1) }
+header .toolbar button { padding: .5em; width: 2em; height: 2em; flex-shrink: 0; position: relative; background: inherit; border: none; border-radius: .5em; filter: brightness(1.1) }
+header .toolbar button:hover { filter: brightness(1.2) }
+header .toolbar button.active::before { display: block; content: ''; width: .2em; height: .2em; position: absolute; right: .3em; bottom: .3em; background: black }
+
 
 main { display: flex; padding: 1em; height: calc(100vh - 3em); justify-content: center; align-items: center }
 main canvas { width: min(1000px, 100%); height: min(1000px, 100%); background: var(--bg-canvas) }

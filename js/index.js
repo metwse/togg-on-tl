@@ -11,7 +11,8 @@ var wheels
 var graph, max
 
 var car = {
-    gas: false, break: false
+    gas: false, break: false,
+    rotation: 0
 }
 
 const PI2 = Math.PI * 2
@@ -21,6 +22,8 @@ const images = {
     wheel: 0, body: 0
 }
 
+
+//{{{ events
 onresize = () => {
     if (scale) {
         if (polarit) pos[1] -= 500 / scale[1]
@@ -58,9 +61,7 @@ onload = async () => {
 
     road = await fetchCurrency('usd')
     t0 = performance.now()
-    pos[0] = -200
-
-    wheels = [new Wheel(300, -size[1] / 2, 10, 20), new Wheel(500, -size[1] / 2, 10, 20)]
+    restart()
     update(t0)
 }
 
@@ -82,6 +83,7 @@ onkeyup = e => {
     car.break = car.gas = false
     
 }
+//}}}
 
 
 async function fetchCurrency(name) {
@@ -90,6 +92,13 @@ async function fetchCurrency(name) {
     cache[name] = data
     return data
 }
+
+
+function restart() {
+    wheels = [new Wheel(300, -size[1] / 2, 10, 20), new Wheel(500, -size[1] / 2, 10, 20)]
+    pos = [-200, 500]
+}
+
 
 function draw() {
     ctx.resetTransform()
@@ -146,6 +155,7 @@ function draw() {
     //}}}
 
 
+    //{{{ draw numbers
     ctx.fillStyle = '#202124'
     ctx.fillRect(-pos[0] + size[0] - 30, 440 - max * 50, 30, max * 50 + 50)
 
@@ -154,15 +164,18 @@ function draw() {
     ctx.font = '16px monospace'
     for (let i = 1; i <= max + 1; i ++) 
         ctx.fillText(i, -pos[0] + size[0] - 20, 505 - i * 50)
+    //}}}
 
+
+    //{{{ draw car
     wheels.forEach(v => v.draw())
-    let dx = (wheels[0].x + wheels[1].x) / 2 - pos[0], dy = (wheels[0].y + wheels[1].y) / 2 + pos[1],
-        a = Math.atan2(wheels[0].y - wheels[1].y, wheels[0].x - wheels[1].x) + PI
+    let dx = (wheels[0].x + wheels[1].x) / 2 - pos[0], dy = (wheels[0].y + wheels[1].y) / 2 + pos[1]
     ctx.translate(dx, dy)
-    ctx.rotate(a)
+    ctx.rotate(car.rotation)
     ctx.drawImage(images.body, -125, -70, 247, 90)
-    ctx.rotate(-a)
+    ctx.rotate(-car.rotation)
     ctx.translate(-dx, -dy)
+    //}}}
 }
 
 
@@ -170,6 +183,8 @@ var dt
 function update(t) {
     dt = (t - t0) / 1000
     t0 = performance.now()
+    if (dt > 0.3) return requestAnimationFrame(update)
+    else requestAnimationFrame(update)
 
 
     graph = {
@@ -178,10 +193,15 @@ function update(t) {
     }
     max = 0
 
+    let Gsin = Math.sin(car.rotation)
+    wheels.forEach(wheel => {
+        wheel.ground = []
+        wheel.F.temp.push([wheel.m * Gsin, 0])
+    })
+    car.rotation = Math.atan2(wheels[0].y - wheels[1].y, wheels[0].x - wheels[1].x) + PI
+    if (car.gas) wheels.forEach(v => { v.F.temp.push([100, 0]) })
+    if (car.break) wheels.forEach(v => { v.F.temp.push([-50, 0]) })
 
-    wheels.forEach(v => v.ground = [])
-    if (car.gas) wheels.forEach(v => { v.F.temp.push([100, 0]), v.rotation += 0.3 })
-    if (car.break) wheels.forEach(v => { v.F.temp.push([-100, 0]), v.rotation -= 0.3 })
     
 
     for (let i = graph.offset - 5; i <= Math.ceil(size[0] / 10) + graph.offset + 4; i ++) {
@@ -212,14 +232,12 @@ function update(t) {
 
     a = Math.atan2(wheels[0].y - wheels[1].y, wheels[0].x - wheels[1].x)
     let l = distance(wheels[0], wheels[1]) - 160
-    wheels[0].x -= Math.cos(a) * l / 2
-    wheels[0].y -= Math.sin(a) * l / 2
-    wheels[1].x += Math.cos(a) * l / 2
-    wheels[1].y += Math.sin(a) * l / 2
-
+    for (let i = 0; i <= 1; i ++) {
+        wheels[i].x += Math.cos(a) * l / 4 * (i ? 1 : -1)
+        wheels[i].y += Math.sin(a) * l / 4 * (i ? 1 : -1)
+    }
 
     wheels.forEach(v => v.update(dt))
-    requestAnimationFrame(update)
 }
 
 
@@ -235,31 +253,30 @@ class Wheel {
     }
     
     update(dt) {
-        let Fnet = [0, this.m * 10], F = this.F.concat(this.F.temp)
+        let Fnet = [0, this.m * 20], F = this.F.concat(this.F.temp)
         for (let i = 0; i < F.length; i ++) {
             Fnet[0] += F[i][0]
             Fnet[1] += F[i][1]
         }
         this.a = [Fnet[0] / this.m, Fnet[1] / this.m]
+        let dx = this.a[0] * dt ** 2 / 2 + this.v[0] * dt, dy = this.a[1] * dt ** 2 / 2 + this.v[1] * dt
+        this.x += dx, this.y += dy
 
-        let dx = this.a[0] * dt ** 2 / 2 + this.v[0] * dt 
-        this.x += dx
-        this.y += this.a[1] * dt ** 2 / 2 + this.v[1] * dt
         if (this.touchingGround) this.v[0] += this.a[0]
-        if (!Fnet?.[0]) this.v[0] *= .95
-        else this.v[0] *= .99
         this.v[1] += this.a[1]
+
+        if (!Fnet?.[0]) this.v[0] *= .95
+        else if (Math.sign(this.v[0]) != Math.sign(this.a[0])) this.v[0] *= .9
+        else this.v[0] *= .99
+
         let i = 0
-        while (this.touchingGround) { 
-            this.y -= 1
-            i ++
-            if (i > 10) {
-                this.v[1] = 0
-                this.v[0] *= .9
-                this.x -= dx / 2
-                break
-            }
+        while (this.touchingGround && i < 20) { this.y -= 1; i ++ }
+        if (i > 10) {
+            this.v[0] *= .8, this.v[1] = 0
+            this.x -= dx / 2
         }
+        
+        this.rotation += dx / this.r
         this.F.temp = []
     }
 
