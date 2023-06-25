@@ -60,7 +60,7 @@ onload = async () => {
     t0 = performance.now()
     pos[0] = -200
 
-    wheels = [new Wheel(300, 100, 10, 20), new Wheel(500, 100, 10, 20)]
+    wheels = [new Wheel(300, -size[1] / 2, 10, 20), new Wheel(500, -size[1] / 2, 10, 20)]
     update(t0)
 }
 
@@ -205,7 +205,10 @@ function update(t) {
     wheels[0].x -= a
     wheels[1].x -= a
     pos[0] += a
-    pos[1] += (max * 50 - pos[1]) / 10
+    a = (size[1] / 2 - 500 + max * 50 - pos[1]) / 10
+    wheels[0].y -= a
+    wheels[1].y -= a
+    pos[1] += a
 
     a = Math.atan2(wheels[0].y - wheels[1].y, wheels[0].x - wheels[1].x)
     let l = distance(wheels[0], wheels[1]) - 160
@@ -243,7 +246,8 @@ class Wheel {
         this.x += dx
         this.y += this.a[1] * dt ** 2 / 2 + this.v[1] * dt
         if (this.touchingGround) this.v[0] += this.a[0]
-        this.v[0] *= .99
+        if (!Fnet?.[0]) this.v[0] *= .95
+        else this.v[0] *= .99
         this.v[1] += this.a[1]
         let i = 0
         while (this.touchingGround) { 
@@ -260,8 +264,14 @@ class Wheel {
     }
 
     get touchingGround() {
+        let y
         for (let i = 0; i < this.ground.length - 1; i ++) {
-            if (pointLineDistance([this.x - pos[0], this.y + pos[1]], [this.ground[i], this.ground[i + 1]]) <= this.r) return true
+            if (pointLineDistance([this.x - pos[0], this.y + pos[1]], [this.ground[i], this.ground[i + 1]]) <= this.r) {
+                y = this.y + pos[1] + this.r
+                if (y < this.ground[i][1] && y > this.ground[i + 1][1]) return true
+                if (y > this.ground[i][1] && y < this.ground[i + 1][1]) return true
+                if (y > this.ground[i][1] && y > this.ground[i + 1][1]) return true
+            }
         }
         return false
     }
