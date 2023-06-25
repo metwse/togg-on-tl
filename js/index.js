@@ -95,7 +95,7 @@ async function fetchCurrency(name) {
 
 
 function restart() {
-    wheels = [new Wheel(300, -size[1] / 2, 10, 20), new Wheel(500, -size[1] / 2, 10, 20)]
+    wheels = [new Wheel(300, -500, 10, 20), new Wheel(500, -500, 10, 20)]
     pos = [-200, 500]
 }
 
