@@ -7,7 +7,7 @@ body { display: flex; margin: 0; width: 100vw; height: 100vh; background: var(--
 header { display: flex; padding: .5em 1em; height: 3em; background: var(--bg-header); justify-content: space-between; align-items: center; gap: 1em }
 
 header h1 a { display: flex; border-bottom: 1px solid transparent; font-weight: normal; text-transform: uppercase; align-items: center; gap: .3em; transition: .1s; filter: brightness(.8); text-decoration: none }
-header h1 a:hover { border-bottom: 1px solid #F5B862; filter: brightness(1) }
+header h1 a:hover { border-bottom: 1px solid #6470E0; filter: brightness(1) }
 header h1  svg { width: 1em; height: 1em; }
 header .link-metw { padding: .2em; height: 100%; aspect-ratio: 1 }
 
